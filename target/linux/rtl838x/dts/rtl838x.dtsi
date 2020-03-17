@@ -1,0 +1,169 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	
+	compatible = "realtek,rtl838x-soc";
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		frequency = <500000000>;
+
+		cpu@0 {
+			compatible = "mips,mips4KEc";
+			reg = <0>;
+		};
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x8000000>;
+	};
+	
+	chosen {
+		bootargs = "console=ttyS0,38400";
+	};
+
+	cpuintc: cpuintc {
+		#address-cells = <0>;
+		#interrupt-cells = <1>;
+		interrupt-controller;
+		compatible = "mti,cpu-interrupt-controller";
+	};
+
+	spi0: spi@b8001200 {
+		status = "okay";
+
+		compatible = "realtek,rtl838x-nor";
+		reg = <0xb800120 0x100>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+	
+	ethernet0: ethernet@0xbb000000 {
+		status = "okay";
+		compatible = "realtek,rtl838x-eth";
+		reg = <0xbb000000 0x100>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		local-mac-address = [04 BF 6D 23 A0 B4];
+		interrupt-parent = <&cpuintc>;
+		interrupts = <32>;
+		#interrupt-cells = <1>;
+		
+		mdio: mdio-bus {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* Internal phy */
+			phy8: ethernet-phy@8 {
+				reg = <8>;
+			};
+			phy9: ethernet-phy@9 {
+				reg = <9>;
+			};
+			phy10: ethernet-phy@10 {
+				reg = <10>;
+			};
+			phy11: ethernet-phy@11 {
+				reg = <11>;
+			};
+			phy12: ethernet-phy@12 {
+				reg = <12>;
+			};
+			phy13: ethernet-phy@13 {
+				reg = <13>;
+			};
+			phy14: ethernet-phy@14 {
+				reg = <14>;
+			};
+			phy15: ethernet-phy@15 {
+				reg = <15>;
+			};
+			phy24: ethernet-phy@24 {
+				reg = <24>;
+			};
+			phy26: ethernet-phy@26 {
+				reg = <26>;
+			};
+		};
+	};
+	
+	
+	
+	switch0: switch0@0 {
+		status = "okay";
+		compatible = "realtek,rtl838x-switch";
+		reg = <0>;
+	
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+		
+			port@0 {
+				reg = <8>;
+				label = "lan1";
+				phy-handle = <&phy8>;
+			};
+			port@1 {
+				reg = <9>;
+				label = "lan2";
+				phy-handle = <&phy9>;
+			};
+			port@2 {
+				reg = <10>;
+				label = "lan3";
+				phy-handle = <&phy10>;
+			};
+			port@3 {
+				reg = <11>;
+				label = "lan4";
+				phy-handle = <&phy11>;
+			};
+			port@4 {
+				reg = <12>;
+				label = "lan5";
+				phy-handle = <&phy12>;
+			};
+			port@5 {
+				reg = <13>;
+				label = "lan6";
+				phy-handle = <&phy13>;
+			};
+			port@6 {
+				reg = <14>;
+				label = "lan7";
+				phy-handle = <&phy14>;
+			};
+			port@7 {
+				reg = <15>;
+				label = "lan8";
+				phy-handle = <&phy15>;
+			};
+			port@24 {
+				reg = <24>;
+				label = "lan9";
+				phy-mode = "qsgmii";
+				phy-handle = <&phy24>;
+			};
+			port@26 {
+				reg = <26>;
+				label = "lan10";
+				phy-mode = "qsgmii";
+				phy-handle = <&phy26>;
+			};
+			port@28 {
+				ethernet = <&ethernet0>;
+				reg = <28>;
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+		};
+	};
+	
+};

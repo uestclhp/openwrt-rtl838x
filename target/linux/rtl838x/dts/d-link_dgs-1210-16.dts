@@ -1,0 +1,83 @@
+/dts-v1/;
+
+
+#include <dt-bindings/input/input.h>
+#include "rtl838x.dtsi"
+
+/ {
+	compatible = "d-link,dgs-1210-16", "realtek,rtl838x-soc";
+	model = "D-Link DGS-1210-16 Switch";
+/*
+	aliases {
+		led-boot = &led_status_yellow;
+		led-failsafe = &led_status_red;
+		led-running = &led_status_blue;
+		led-upgrade = &led_status_yellow;
+		reset button?
+		Power-Led
+	};
+	
+*/
+	chosen {
+		bootargs = "console=ttyS0,115200";
+	};
+};
+
+&spi0 {
+
+	status = "okay";
+        flash@0 {
+                compatible = "jedec,spi-nor";
+                reg = <0>;
+                spi-max-frequency = <10000000>;
+
+                partitions {
+                        compatible = "fixed-partitions";
+                        #address-cells = <1>;
+                        #size-cells = <1>;
+
+                        partition@0 {
+                                label = "u-boot";
+                                reg = <0x00000000 0x80000>;
+                                read-only;
+                        };
+                        partition@80000 {
+                                label = "u-boot-env";
+                                reg = <0x00080000 0x40000>;
+                                read-only;
+                        };
+                        partition@c0000 {
+                                label = "u-boot-env2";
+                                reg = <0x000c0000 0x40000>;
+                                read-only;
+                        };
+                        partition@100000 {
+                                label = "kernel";
+                                reg = <0x00100000 0x180000>;
+                                read-only;
+                        };
+                        partition@280000 {
+                                label = "rootfs1";
+                                reg = <0x00280000 0xc00000>;
+                                read-only;
+                        };
+                        partition@be80000 {
+                                label = "kernel2";
+                                reg = <0x00e80000 0x180000>;
+                                read-only;
+                        };
+                        partition@1000000 {
+                                label = "sysinfo";
+                                reg = <0x01000000 0x40000>;
+                        };
+                        partition@1040000 {
+                                label = "rootfs2";
+                                reg = <0x01040000 0xc00000>;
+                        };
+                        partition@1c40000 {
+                                label = "jffs2";
+                                reg = <0x01c40000 0x3c0000>;
+                        };
+		};
+	};
+};
