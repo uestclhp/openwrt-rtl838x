@@ -5,7 +5,51 @@
           |__| W I R E L E S S   F R E E D O M
  -----------------------------------------------------
 
-This is the buildsystem for the OpenWrt Linux distribution.
+
+This is OpenWRT with support for the RT8380 and RTL8382 SoCs from Realtek.
+At present, there is rudimentary support for the 
+  Zyxel GS1900-10HP (8 Gig + 2 SFP, 128MB RAM / 32MB flash)
+and the
+  D-Link DGS-1210-16 (16 Gig + 4 SFP, 128MB RAM / 32MB flash)
+managed low-end switches. This port is base on the GPL-dumps for the
+D-Link DGS-1210 and the TP-Link 2500G. There is no datasheet available
+for the RTL838X platform.
+
+RTL838x chips are found on many managed switches with 10-20 ports. The larger
+sibling RTL8390/2 is found on 28 to 52 port switches.
+
+So far, drivers are provided for
+ - Basic SoC setup: timers, IRQ, including Device Tree support for memory and
+   CPU-Speed configuration, flash partitions
+ - An SPI driver to access the NOR flash, single speed, write disabled on purpose
+ - An Ethernet driver for the RTL838x
+ - A DSA switch driver with port isolation
+ - PHY drivers for the internal RTL8218B Ethernet and RTL8380 SFP ports
+
+TODO:
+ - Test flash write access, support flash quad read speed: 
+   doable, U-Boot code under GPL
+ - Access to PoE features: doable, as configured by 2nd UART on RTL838x, 
+   some code under GPL available
+ - port based VLAN: "speaking" register names in GPLed header available, 
+   seems doable
+ - support for switch featuers in graphical LuCI
+ - MIPS16 support: according to Realtek the SoC supports MIPS16e
+ - Support more PHYs: external RTL8218b, RTL8214FC for 20-port switches: 
+   GPL U-Boot code available
+ - GPIO support: U-Boot code partially available
+ - Support for external LED serial drivers: some U-Boot code available
+ - Support for RTL839x? GPL code available, very similar to 8380 but
+   don't have hardware
+ - Better support for ethtool settings
+ - More advanced switch features: dynamic VLAN, switch-based filtering,
+   traffic shaping: very little code available, only register names
+
+Known BUGS:
+ - Many dublicate ACKs seen on Ethernet
+ - Fibre speed is read out wrong
+ - DSA API incomplete
+ - Port statistics not reset on boot
 
 To build your own firmware you need a Linux, BSD or MacOSX system (case
 sensitive filesystem required). Cygwin is unsupported because of the lack
@@ -23,12 +67,30 @@ packages into package/feeds/
 3. Run "make menuconfig" to select your preferred configuration for the
 toolchain, target system & firmware packages.
 
+Select Realtek MIPS and then one of the supported Routers
+Make sure 
+Advanced configuration options (for developers)  --->
+   Target Options -> MIPS16
+is DISABLED.
+
 4. Run "make" to build your firmware. This will download all sources, build
 the cross-compile toolchain and then cross-compile the Linux kernel & all
 chosen applications for your target system.
 
-Sunshine!
-	Your OpenWrt Community
-	http://www.openwrt.org
+5. Once booted, you can play with the switch. Example:
+/etc/init.d/network stop
+ip link set eth0 up
+ip link set lan1 up
+ip link set lan10 up
+ip link add name br0 type bridge
+ip link set dev lan1 master br0
+ip link set dev lan10 master br0
+ip addr add 192.168.1.133/24 dev br0
+ip link set dev br0 up
+
+Which forms a bridge over port 1 and port 10 (right fibre port). For this to work
+you need the ports to have a link. Otherwise use brctl.
+
+
 
 
